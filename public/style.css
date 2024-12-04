@@ -50,18 +50,6 @@ body {
     background-color: #ccc;
     cursor: pointer;
 }
-  
-#keyboard button.correct {
-    background-color: #6aaa64; /* Green */
-}
-  
-#keyboard button.present {
-    background-color: #c9b458; /* Yellow */
-}
-  
-#keyboard button.absent {
-    background-color: #787c7e; /* Gray */
-}
 
 #feedback {
     margin: 20px auto;

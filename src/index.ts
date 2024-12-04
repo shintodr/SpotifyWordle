@@ -53,6 +53,8 @@ function createKeyboard() {
             }
         }
         button.textContent = keyString;
+        button.id = 'key-' + letter.toLowerCase();
+        console.log("BUTTON ID: " + button.id);
         button.classList.add("key");
         button.addEventListener("click", () => handleKeyPress(keyString));
         rowDiv.appendChild(button);
@@ -117,15 +119,21 @@ function submitGuess(guessRowNumber: number){
   let correctGuesses = 0;
   for(let i = 0; i < guess.length; i++){
     const cell = grid[guessRowNumber][i];
+
+    const keyboard = document.getElementById("keyboard");
+
     if(wordMap.has(guess[i])){
       if(word[i] == guess[i]){
-        cell.style.backgroundColor = "green";
+        cell.style.backgroundColor = "#84bf41";
+        updateKeyColor(guess[i], "#84bf41")
         correctGuesses++;
       } else {
-        cell.style.backgroundColor = "yellow";
+        cell.style.backgroundColor = "#f3b229";
+        updateKeyColor(guess[i], "#f3b229")
       }
     } else {
-      cell.style.backgroundColor = "gray";
+      cell.style.backgroundColor = "#555759";
+      updateKeyColor(guess[i], "#555759")
     }
   }
   if(correctGuesses == 5){
@@ -135,6 +143,13 @@ function submitGuess(guessRowNumber: number){
     setFeedback("You lost. :(");
   } else {
     setFeedback("\n");
+  }
+}
+
+function updateKeyColor(letter: string, color:string){
+  const key = document.getElementById('key-' + letter.toLowerCase());
+  if(key){
+    key.style.backgroundColor = color;
   }
 }
 
