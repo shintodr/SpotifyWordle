@@ -1,9 +1,16 @@
+import fiveLetterWords from './five_letter_words.json';
+
+console.log(fiveLetterWords);
+const wordList = fiveLetterWords;
+
+console.log(wordList);
+
 console.log("Wordle Clone Initialized!");
 let currentGuessRow = 0;
 let currentGuessColummn = 0;
-const wordList = ['APPLE', 'HELLO', 'PAINT', 'GREAT', 'DONUT'];
-let wordIndex = Math.floor(Math.random() * (wordList.length - 1))
-let word = wordList[wordIndex];
+let wordIndex = Math.floor(Math.random() * (wordList.length - 1));
+let word = wordList[wordIndex].toUpperCase();
+console.log("WORD: " + word);
 let wordMap = new Map();
 
 let grid: HTMLDivElement[][] = [];
@@ -39,14 +46,17 @@ function createNextButton(){
 }
 
 function handleNextPress(){
-  console.log("NEXT BUTTON PRESSED")
+  console.log("NEXT BUTTON PRESSED");
   const wordleGrid = document.getElementById("wordle-grid");
   const keyboard = document.getElementById("keyboard");
   if (wordleGrid) wordleGrid.innerHTML = ""; // Clears the grid cells
   if (keyboard) keyboard.innerHTML = ""; // Clears the keyboard buttons
 
   wordIndex = Math.floor(Math.random() * (wordList.length - 1));
-  word = wordList[wordIndex];
+  console.log('wordIndex: ' + wordIndex);
+  word = wordList[wordIndex].toUpperCase();
+  console.log('wordList: ' + wordList)
+  console.log("NEW WORD: " + word);
   wordMap.clear();
   createTargetWordMap();
   currentGuessRow = 0;
@@ -54,7 +64,6 @@ function handleNextPress(){
   createKeyboard();
   setFeedback("");
   createGrid();
-
 }
 
 createTargetWordMap();
@@ -107,7 +116,7 @@ function createKeyboard() {
   document.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
   
-    if (key >= "a" && key <= "z" && key != "enter" && key != "backspace") {
+    if (key.toUpperCase() != key.toLowerCase() && key != "enter" && key != "backspace") {
       // Handle letter input
       handleKeyPress(key);
     } else if (key === "enter") {
@@ -119,11 +128,15 @@ function createKeyboard() {
     }
   });
 
+  function isCharacterALetter(c: string){
+    return (/[a-zA-Z]/).test(c);
+  }
+
   function handleKeyPress(letter: string) {
     console.log("Key pressed:", letter); // Placeholder
 
     // there is space for a letter
-    if(currentGuessRow < 6 && currentGuessColummn < 5 && letter != "enter" && letter != "<-"){
+    if(currentGuessRow < 6 && currentGuessColummn < 5 && letter != "enter" && letter != "<-" && isCharacterALetter(letter)){
       console.log("FILLING OUT LETTER IN CELL")
       const cell = grid[currentGuessRow][currentGuessColummn];
       cell.textContent = letter.toUpperCase(); // Set the letter in the cell
@@ -135,9 +148,6 @@ function createKeyboard() {
       if(currentGuessColummn == 5){
         console.log("Submitting guess for row:", currentGuessRow);
         submitGuess(currentGuessRow);
-        currentGuessRow++;
-        currentGuessColummn = 0;
-
         const feedback = document.getElementById("feedback");
       } else {
         setFeedback("Please input more letters before submitting a guess!");
@@ -156,13 +166,19 @@ function createKeyboard() {
   }
 
 function submitGuess(guessRowNumber: number){
-  const guessRow = grid[guessRowNumber]
-  const guess = guessRow.map((cell) => cell.textContent || "").join("");
+  const guessRow = grid[guessRowNumber];
+  let guess = guessRow.map((cell) => cell.textContent || "").join("");
   let correctGuesses = 0;
+  if(wordList.indexOf(guess.toLowerCase()) == -1){
+    setFeedback("That's not a word!");
+    return;
+  }
+
+  currentGuessRow++;
+  currentGuessColummn = 0;
+
   for(let i = 0; i < guess.length; i++){
     const cell = grid[guessRowNumber][i];
-
-    const keyboard = document.getElementById("keyboard");
 
     if(wordMap.has(guess[i])){
       if(word[i] == guess[i]){
@@ -178,6 +194,7 @@ function submitGuess(guessRowNumber: number){
       updateKeyColor(guess[i], "#555759")
     }
   }
+
   if(correctGuesses == 5){
     setFeedback("YOU WIN! GREAT JOB!")
     currentGuessRow = 6;
