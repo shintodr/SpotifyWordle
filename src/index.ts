@@ -1,10 +1,12 @@
 console.log("Wordle Clone Initialized!");
 let currentGuessRow = 0;
 let currentGuessColummn = 0;
-let word = "PAINT";
+const wordList = ['APPLE', 'HELLO', 'PAINT', 'GREAT', 'DONUT'];
+let wordIndex = Math.floor(Math.random() * (wordList.length - 1))
+let word = wordList[wordIndex];
 let wordMap = new Map();
 
-const grid: HTMLDivElement[][] = [];
+let grid: HTMLDivElement[][] = [];
 const wordleGrid = document.getElementById("wordle-grid")
 
 function createTargetWordMap(){
@@ -19,9 +21,46 @@ function createTargetWordMap(){
   console.log(wordMap)
 }
 
+createNextButton();
+
+function createNextButton(){
+  const nextButton = document.createElement("button");
+  nextButton.textContent = "Next";
+  nextButton.addEventListener("click", () => {
+    nextButton.blur();
+    document.body.focus();
+    handleNextPress();
+  });
+  nextButton.classList.add("next-button");
+  const titleDiv = document.getElementById("title");
+  if (titleDiv) {
+    titleDiv.appendChild(nextButton);
+  }
+}
+
+function handleNextPress(){
+  console.log("NEXT BUTTON PRESSED")
+  const wordleGrid = document.getElementById("wordle-grid");
+  const keyboard = document.getElementById("keyboard");
+  if (wordleGrid) wordleGrid.innerHTML = ""; // Clears the grid cells
+  if (keyboard) keyboard.innerHTML = ""; // Clears the keyboard buttons
+
+  wordIndex = Math.floor(Math.random() * (wordList.length - 1));
+  word = wordList[wordIndex];
+  wordMap.clear();
+  createTargetWordMap();
+  currentGuessRow = 0;
+  currentGuessColummn = 0;
+  createKeyboard();
+  setFeedback("");
+  createGrid();
+
+}
+
 createTargetWordMap();
 
 function createGrid() {
+  grid = [];
     for (let i = 0; i < 6; i++) {
       const row: HTMLDivElement[] = [];
         for (let j = 0; j < 5; j++) {
@@ -85,6 +124,7 @@ function createKeyboard() {
 
     // there is space for a letter
     if(currentGuessRow < 6 && currentGuessColummn < 5 && letter != "enter" && letter != "<-"){
+      console.log("FILLING OUT LETTER IN CELL")
       const cell = grid[currentGuessRow][currentGuessColummn];
       cell.textContent = letter.toUpperCase(); // Set the letter in the cell
       currentGuessColummn++; // Move to the next column
@@ -97,6 +137,8 @@ function createKeyboard() {
         submitGuess(currentGuessRow);
         currentGuessRow++;
         currentGuessColummn = 0;
+
+        const feedback = document.getElementById("feedback");
       } else {
         setFeedback("Please input more letters before submitting a guess!");
       }
