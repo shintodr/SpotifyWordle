@@ -1,16 +1,36 @@
 console.log("Wordle Clone Initialized!");
 let currentGuessRow = 0;
 let currentGuessColummn = 0;
+let word = "PAINT";
+let wordMap = new Map();
 
+const grid: HTMLDivElement[][] = [];
 const wordleGrid = document.getElementById("wordle-grid")
+
+function createTargetWordMap(){
+  for(let i = 0; i < word.length; i++){
+    if(wordMap.has(word[i])){
+      wordMap.set(word[i], wordMap.get(word[i]).concat([i]))
+    } else {
+      wordMap.set(word[i], [i])
+    }
+  }
+  console.log('created wordMap:')
+  console.log(wordMap)
+}
+
+createTargetWordMap();
 
 function createGrid() {
     for (let i = 0; i < 6; i++) {
+      const row: HTMLDivElement[] = [];
         for (let j = 0; j < 5; j++) {
             const cell = document.createElement("div");
             cell.classList.add("grid-cell");
             wordleGrid?.appendChild(cell);
+            row.push(cell);
         }
+        grid.push(row);
     }
 }
   
@@ -41,30 +61,86 @@ function createKeyboard() {
     });
   }
   
+  createKeyboard();
+
+  document.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
+  
+    if (key >= "a" && key <= "z" && key != "enter" && key != "backspace") {
+      // Handle letter input
+      handleKeyPress(key);
+    } else if (key === "enter") {
+      // Handle the Enter key
+      handleKeyPress("enter");
+    } else if (key === "backspace") {
+      // Handle the Backspace key
+      handleKeyPress("<-");
+    }
+  });
+
   function handleKeyPress(letter: string) {
     console.log("Key pressed:", letter); // Placeholder
 
     // there is space for a letter
-    if(currentGuessRow < 6 && currentGuessColummn < 5){
-      wordleGrid
+    if(currentGuessRow < 6 && currentGuessColummn < 5 && letter != "enter" && letter != "<-"){
+      const cell = grid[currentGuessRow][currentGuessColummn];
+      cell.textContent = letter.toUpperCase(); // Set the letter in the cell
+      currentGuessColummn++; // Move to the next column
     }
-    // there is not space for a letter (do nothing?)
 
     // enter key is pressed
+    if(letter == "enter" && currentGuessRow < 6){
+      if(currentGuessColummn == 5){
+        console.log("Submitting guess for row:", currentGuessRow);
+        submitGuess(currentGuessRow);
+        currentGuessRow++;
+        currentGuessColummn = 0;
+      } else {
+        setFeedback("Please input more letters before submitting a guess!");
+      }
+    }
 
     // backspace key is pressed
-  }
-
-  function setLetter(letter: string){
-    
-  }
-  
-  createKeyboard();
-
-
-  function setFeedback(message: string) {
-    const feedback = document.getElementById("feedback");
-    if (feedback) {
-      feedback.textContent = message;
+    if(letter == "<-" && currentGuessRow < 6){
+      console.log('backspace is pressed')
+      if(currentGuessColummn > 0){
+        currentGuessColummn--; // Move back one column
+        const cell = grid[currentGuessRow][currentGuessColummn];
+        cell.textContent = ""; // Clear the cell
+      }
     }
+  }
+
+function submitGuess(guessRowNumber: number){
+  const guessRow = grid[guessRowNumber]
+  const guess = guessRow.map((cell) => cell.textContent || "").join("");
+  let correctGuesses = 0;
+  for(let i = 0; i < guess.length; i++){
+    const cell = grid[guessRowNumber][i];
+    if(wordMap.has(guess[i])){
+      if(word[i] == guess[i]){
+        cell.style.backgroundColor = "green";
+        correctGuesses++;
+      } else {
+        cell.style.backgroundColor = "yellow";
+      }
+    } else {
+      cell.style.backgroundColor = "gray";
+    }
+  }
+  if(correctGuesses == 5){
+    setFeedback("YOU WIN! GREAT JOB!")
+    currentGuessRow = 6;
+  } else if(guessRowNumber == 5){
+    setFeedback("You lost. :(");
+  } else {
+    setFeedback("\n");
+  }
+}
+
+function setFeedback(message: string) {
+  const feedback = document.getElementById("feedback");
+  if (feedback) {
+    feedback.textContent = message;
+  }
 }
