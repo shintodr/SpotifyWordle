@@ -136,8 +136,8 @@ function createKeyboard() {
     console.log("Key pressed:", letter); // Placeholder
 
     // there is space for a letter
-    if(currentGuessRow < 6 && currentGuessColummn < 5 && letter != "enter" && letter != "<-" && isCharacterALetter(letter)){
-      console.log("FILLING OUT LETTER IN CELL")
+    if(currentGuessRow < 6 && currentGuessColummn < 5 && letter != "enter" && letter != "<-" && isCharacterALetter(letter) && letter.length == 1){
+      // console.log("FILLING OUT LETTER IN CELL")
       const cell = grid[currentGuessRow][currentGuessColummn];
       cell.textContent = letter.toUpperCase(); // Set the letter in the cell
       currentGuessColummn++; // Move to the next column
@@ -156,7 +156,7 @@ function createKeyboard() {
 
     // backspace key is pressed
     if(letter == "<-" && currentGuessRow < 6){
-      console.log('backspace is pressed')
+      // console.log('backspace is pressed')
       if(currentGuessColummn > 0){
         currentGuessColummn--; // Move back one column
         const cell = grid[currentGuessRow][currentGuessColummn];
@@ -199,7 +199,7 @@ function submitGuess(guessRowNumber: number){
     setFeedback("YOU WIN! GREAT JOB!")
     currentGuessRow = 6;
   } else if(guessRowNumber == 5){
-    setFeedback("You lost. :(");
+    setFeedback("You lost. :(\nThe word was: " + word);
   } else {
     setFeedback("\n");
   }
