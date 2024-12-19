@@ -2,6 +2,9 @@
 
 This is a simple clone of the popular word game Wordle.
 
+<img src="./wordle_screenshot.png" alt="Wordle Clone Screenshot" width="300"/>
+
+
 ## Features
 
 - Access to large word bank
